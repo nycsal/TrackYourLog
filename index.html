@@ -5,165 +5,198 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Eat with Kaka</title>
 <style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background-color: #121212;
-        color: #fff;
-        max-width: 420px;
-        margin: auto;
-        overflow-x: hidden;
-    }
-    header {
-        padding: 15px;
-        background: linear-gradient(90deg, #ff9800, #ff5e00);
-        text-align: center;
-        font-size: 22px;
-        font-weight: bold;
-    }
-    .food-list {
-        padding: 15px;
-    }
-    .food-item {
-        background-color: #1e1e1e;
-        margin-bottom: 10px;
-        padding: 10px;
-        border-radius: 8px;
-        font-size: 18px;
-    }
-    .food-item small {
-        font-size: 14px;
-        color: #ccc;
-    }
-    .fab {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: #ff9800;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        color: white;
-        font-size: 36px;
-        text-align: center;
-        line-height: 60px;
-        cursor: pointer;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 10;
-        left: 0; top: 0;
-        width: 100%; height: 100%;
-        background-color: rgba(0,0,0,0.7);
-        justify-content: center;
-        align-items: center;
-    }
-    .modal-content {
-        background-color: #1e1e1e;
-        padding: 20px;
-        border-radius: 10px;
-        width: 90%;
-        max-width: 400px;
-        font-size: 18px;
-    }
-    input, select, button {
-        width: 100%;
-        padding: 10px;
-        margin-top: 10px;
-        font-size: 18px;
-        border: none;
-        border-radius: 6px;
-    }
-    input, select {
-        background-color: #333;
-        color: white;
-    }
-    button {
-        background-color: #ff9800;
-        color: white;
-        cursor: pointer;
-    }
-    button:hover {
-        background-color: #e68900;
-    }
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f9f9f9;
+    max-width: 480px;
+    margin: auto;
+    overflow-x: hidden;
+  }
+  header {
+    background: linear-gradient(45deg, #ff7043, #ffcc80);
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 22px;
+    font-weight: bold;
+  }
+  .tagline {
+    font-size: 14px;
+    font-weight: normal;
+  }
+  .dashboard {
+    background: white;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .food-list {
+    margin: 10px;
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+  }
+  .food-item {
+    border-bottom: 1px solid #ddd;
+    padding: 8px 0;
+  }
+  .fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .fab img {
+    width: 60px;
+    height: 60px;
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+  }
+  input, select, button {
+    font-size: 18px;
+    padding: 8px;
+    margin: 5px 0;
+    width: 100%;
+  }
 </style>
 </head>
 <body>
 
-<header>🍽 Eat with Kaka</header>
+<header>
+  Eat with Kaka
+  <div class="tagline">Track your meals, stay healthy!</div>
+</header>
 
-<div class="food-list" id="foodList">
-    <!-- Entries will appear here -->
+<div class="dashboard" id="dashboard">
+  Calories: 0 | Protein: 0g | Fat: 0g
 </div>
 
-<div class="fab" id="addBtn">+</div>
+<div class="food-list" id="foodList">
+  <h3>Today's Foods</h3>
+  <div id="foods"></div>
+</div>
+
+<!-- Floating Apple Button -->
+<button class="fab" id="addFoodBtn">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Red_Apple.jpg/600px-Red_Apple.jpg" alt="Add Food">
+</button>
 
 <!-- Modal -->
 <div class="modal" id="foodModal">
-    <div class="modal-content">
-        <h3>Add Food</h3>
-        <input type="text" id="foodName" placeholder="Food name">
-        <input type="number" id="foodQty" placeholder="Quantity">
-        <select id="foodUnit">
-            <option value="serving/number">Serving / Number</option>
-            <option value="grams">Grams (g)</option>
-            <option value="oz">Ounces (oz)</option>
-            <option value="floz">Fluid Ounces (fl oz)</option>
-        </select>
-        <button id="saveFood">Save</button>
-        <button id="cancelFood" style="background-color:#555;">Cancel</button>
-    </div>
+  <div class="modal-content">
+    <h3>Add Food</h3>
+    <input type="text" id="foodName" placeholder="Food name">
+    <input type="number" id="foodQty" placeholder="Quantity">
+    <select id="foodUnit">
+      <option value="serving">Serving</option>
+      <option value="number">Number</option>
+      <option value="grams">Grams</option>
+      <option value="oz">Ounces (oz)</option>
+      <option value="fl oz">Fluid Ounces (fl oz)</option>
+      <option value="cup">Cup</option>
+      <option value="tablespoon">Tablespoon</option>
+      <option value="teaspoon">Teaspoon</option>
+      <option value="slice">Slice</option>
+      <option value="piece">Piece</option>
+      <option value="ml">Milliliter (ml)</option>
+      <option value="liter">Liter</option>
+    </select>
+    <button id="saveFood">Save</button>
+    <button onclick="document.getElementById('foodModal').style.display='none'">Cancel</button>
+  </div>
 </div>
 
 <script>
-    const addBtn = document.getElementById('addBtn');
-    const modal = document.getElementById('foodModal');
-    const saveFood = document.getElementById('saveFood');
-    const cancelFood = document.getElementById('cancelFood');
-    const foodList = document.getElementById('foodList');
+  const API_ID = "YOUR_APP_ID";  // Replace with your Nutritionix App ID
+  const API_KEY = "YOUR_APP_KEY"; // Replace with your Nutritionix App Key
 
-    let foods = JSON.parse(localStorage.getItem('foods')) || [];
+  let foods = JSON.parse(localStorage.getItem("foods")) || [];
 
-    function renderFoods() {
-        foodList.innerHTML = '';
-        foods.forEach((food, index) => {
-            foodList.innerHTML += `
-                <div class="food-item">
-                    <strong>${food.name}</strong> - ${food.qty} ${food.unit}<br>
-                    <small>${food.date}</small>
-                </div>
-            `;
+  document.getElementById("addFoodBtn").addEventListener("click", () => {
+    document.getElementById("foodModal").style.display = "flex";
+  });
+
+  document.getElementById("saveFood").addEventListener("click", async () => {
+    const name = document.getElementById("foodName").value;
+    const qty = parseFloat(document.getElementById("foodQty").value);
+    const unit = document.getElementById("foodUnit").value;
+    if (!name || !qty) return alert("Enter food and quantity");
+
+    try {
+      const res = await fetch("https://trackapi.nutritionix.com/v2/natural/nutrients", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-app-id": API_ID,
+          "x-app-key": API_KEY
+        },
+        body: JSON.stringify({ query: `${qty} ${unit} ${name}` })
+      });
+      const data = await res.json();
+      if (data.foods && data.foods.length > 0) {
+        const foodData = data.foods[0];
+        foods.push({
+          name: foodData.food_name,
+          qty,
+          unit,
+          calories: foodData.nf_calories,
+          protein: foodData.nf_protein,
+          fat: foodData.nf_total_fat,
+          carbs: foodData.nf_total_carbohydrate,
+          cholesterol: foodData.nf_cholesterol,
+          time: new Date().toLocaleString()
         });
-    }
-
-    addBtn.onclick = () => { modal.style.display = 'flex'; };
-    cancelFood.onclick = () => { modal.style.display = 'none'; };
-
-    saveFood.onclick = () => {
-        const name = document.getElementById('foodName').value.trim();
-        const qty = document.getElementById('foodQty').value.trim();
-        const unit = document.getElementById('foodUnit').value;
-
-        if (!name || !qty) {
-            alert('Please enter food name and quantity');
-            return;
-        }
-
-        const now = new Date();
-        const dateStr = now.toLocaleString();
-
-        foods.push({ name, qty, unit, date: dateStr });
-        localStorage.setItem('foods', JSON.stringify(foods));
+        localStorage.setItem("foods", JSON.stringify(foods));
         renderFoods();
+        document.getElementById("foodModal").style.display = "none";
+      } else {
+        alert("Food not found");
+      }
+    } catch (err) {
+      alert("Error fetching nutrition data");
+    }
+  });
 
-        modal.style.display = 'none';
-        document.getElementById('foodName').value = '';
-        document.getElementById('foodQty').value = '';
-    };
+  function renderFoods() {
+    const list = document.getElementById("foods");
+    list.innerHTML = "";
+    let totals = { calories: 0, protein: 0, fat: 0 };
+    foods.forEach(f => {
+      totals.calories += f.calories;
+      totals.protein += f.protein;
+      totals.fat += f.fat;
+      list.innerHTML += `<div class="food-item">
+        ${f.qty} ${f.unit} ${f.name} - ${f.calories.toFixed(0)} cal, ${f.protein}g protein
+        <br><small>${f.time}</small>
+      </div>`;
+    });
+    document.getElementById("dashboard").innerText =
+      `Calories: ${totals.calories.toFixed(0)} | Protein: ${totals.protein.toFixed(1)}g | Fat: ${totals.fat.toFixed(1)}g`;
+  }
 
-    renderFoods();
+  renderFoods();
 </script>
 
 </body>
