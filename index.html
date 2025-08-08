@@ -1,1 +1,902 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Eat with Kaka — Food Log</title>
+<style>
+  :root{
+    --bg:#0f1724; /* dark navy */
+    --card:#0b1220;
+    --accent1:#ff6b6b; /* coral */
+    --accent2:#7c5cff; /* purple */
+    --accent3:#3ee6b6; /* mint */
+    --muted:#9aa6bd;
+    --glass: rgba(255,255,255,0.03);
+    --safe-padding: 16px;
+    --radius:14px;
+    font-family: Inter, system-ui, -apple-system, "Helvetica Neue", Arial;
+  }
+  html,body{
+    height:100%;
+    margin:0;
+    background: linear-gradient(180deg,#07101b 0%, #081426 60%);
+    color:#e6eef8;
+    -webkit-font-smoothing:antialiased;
+  }
 
+  /* Phone fixed container */
+  .app{
+    width:100%;
+    max-width:430px; /* keeps it tidy on taller phones */
+    margin:0 auto;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding:12px;
+    box-sizing:border-box;
+    gap:10px;
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:8px;
+  }
+  .brand {
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .logo {
+    width:52px;
+    height:52px;
+    background: linear-gradient(135deg,var(--accent1),var(--accent2));
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+  }
+  .logo span{ font-size:20px; color:white; }
+  h1{ margin:0; font-size:18px; letter-spacing:0.2px; }
+  p.sub { margin:0; color:var(--muted); font-size:12px; }
+
+  main{
+    flex:1;
+    overflow:auto;
+    padding:10px 0;
+  }
+
+  .card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:var(--radius);
+    padding:12px;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+    margin-bottom:10px;
+  }
+
+  /* Input area */
+  .inputs{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .inputs .field{
+    flex:1 1 140px;
+    min-width:120px;
+  }
+  label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
+  input[type="text"], input[type="number"], select, input[type="date"]{
+    width:100%;
+    border-radius:10px;
+    border:0;
+    padding:10px;
+    background:var(--glass);
+    color:var(--muted);
+    outline: none;
+    font-size:15px;
+  }
+  .big {
+    padding:12px;
+    font-size:16px;
+    background: linear-gradient(90deg,var(--accent3), rgba(255,255,255,0.02));
+    color:#021217;
+    font-weight:700;
+  }
+
+  .row {
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .btn {
+    border:0;
+    padding:10px 12px;
+    border-radius:12px;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    box-shadow: 0 6px 18px rgba(3,7,18,0.5);
+  }
+  .btn-primary { background: linear-gradient(90deg,var(--accent1),var(--accent2)); color:white; }
+  .btn-ghost { background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.03); }
+
+  /* quick foods */
+  .quick-list{
+    display:flex;
+    gap:8px;
+    overflow:auto;
+    padding:6px 4px;
+  }
+  .chip{
+    min-width:80px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:999px;
+    padding:8px 12px;
+    font-weight:700;
+    font-size:14px;
+    color:var(--muted);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+  }
+
+  /* entries list */
+  .entries{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-top:6px;
+  }
+  .entry{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:center;
+    padding:10px;
+    border-radius:12px;
+    background: rgba(255,255,255,0.02);
+    font-size:14px;
+  }
+  .entry .left{ display:flex; gap:8px; align-items:center; }
+  .badge{
+    width:44px;height:44px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;
+    color:white;
+  }
+  .entry small { display:block; color:var(--muted); font-size:12px; }
+
+  .nutrients{
+    display:flex;
+    gap:8px;
+    margin-top:8px;
+    flex-wrap:wrap;
+  }
+  .nut{
+    background: rgba(255,255,255,0.02);
+    padding:8px 10px;
+    border-radius:10px;
+    font-weight:700;
+    font-size:13px;
+    color:var(--muted);
+  }
+
+  /* reports */
+  .reports {
+    display:flex;
+    gap:8px;
+    margin-top:6px;
+  }
+  .report-card{
+    flex:1;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    padding:10px;
+    border-radius:12px;
+    text-align:center;
+  }
+  .report-card h3{ margin:0; font-size:14px; }
+  .report-card p{ margin:6px 0 0 0; color:var(--muted); font-weight:800; font-size:18px; }
+
+  footer{
+    padding:8px 0;
+    display:flex;
+    gap:8px;
+    align-items:center;
+    justify-content:space-between;
+  }
+
+  /* modal-ish details */
+  .panel{
+    background: linear-gradient(180deg, rgba(255,255,255,0.018), rgba(0,0,0,0.03));
+    border-radius:12px;
+    padding:10px;
+  }
+
+  /* small helpers */
+  .muted { color:var(--muted); font-size:13px; }
+  .small { font-size:12px; color:var(--muted); }
+  .flex-col{ display:flex; flex-direction:column; }
+  .center{ display:flex; align-items:center; justify-content:center; }
+  .danger { background: linear-gradient(90deg,#ff8b8b,#ff6b6b); color:white; }
+  .success { background: linear-gradient(90deg,#78f0c7,#3ee6b6); color:#052921; }
+
+  /* scroll styling mobile */
+  ::-webkit-scrollbar{ height:8px; width:8px; }
+  ::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.03); border-radius:10px; }
+  @media (orientation:landscape){
+    .app{ max-width:800px; }
+  }
+</style>
+</head>
+<body>
+<div class="app" role="application" aria-label="Eat with Kaka food logger">
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><span>K</span></div>
+      <div>
+        <h1>Eat with Kaka</h1>
+        <p class="sub">Simple, colorful mobile food log — tap to add</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- INPUT CARD -->
+    <section class="card" aria-labelledby="addFoodTitle">
+      <div class="row" style="justify-content:space-between;align-items:center;">
+        <div>
+          <h2 id="addFoodTitle" style="margin:0;font-size:16px">Add food</h2>
+          <p class="small">Enter food name, amount and unit — tap Add</p>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button class="btn btn-ghost" id="todayBtn" title="Jump to today">Today</button>
+          <input id="jumpDate" type="date" value="">
+        </div>
+      </div>
+
+      <div style="height:8px"></div>
+
+      <div class="inputs">
+        <div class="field">
+          <label for="foodName">Food</label>
+          <input id="foodName" type="text" placeholder="e.g., Tuna, Apple, Latte" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="amount">Amount</label>
+          <input id="amount" type="number" min="0" step="any" placeholder="e.g. 1 or 8 or 250">
+        </div>
+
+        <div class="field">
+          <label for="unit">Unit</label>
+          <select id="unit">
+            <option value="serving">serving / number</option>
+            <option value="g">grams (g)</option>
+            <option value="oz">oz</option>
+            <option value="floz">fl oz</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+
+      <div class="row">
+        <button id="addBtn" class="btn btn-primary big" style="flex:1">Add & show nutrition</button>
+        <button id="clearBtn" class="btn btn-ghost">Clear</button>
+      </div>
+
+      <div style="height:10px"></div>
+
+      <div class="muted">Quick foods</div>
+      <div class="quick-list" id="quickList" aria-label="Quick food buttons">
+        <!-- quick chips inserted by JS -->
+      </div>
+    </section>
+
+    <!-- Entries and details -->
+    <section class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0">Your entries</h3>
+        <div class="small muted">Tap an entry to see/edit details</div>
+      </div>
+
+      <div class="entries" id="entriesList" aria-live="polite" style="margin-top:8px;">
+        <!-- entries injected here -->
+      </div>
+      <div class="small muted" style="margin-top:8px">Saved locally on device. Use the reports to view totals.</div>
+    </section>
+
+    <!-- Reports -->
+    <section class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0">Reports</h3>
+        <div class="small muted">Totals for selected window</div>
+      </div>
+
+      <div class="reports" style="margin-top:10px;">
+        <div class="report-card">
+          <h3>Last 7 days</h3>
+          <p id="r7">0 kcal</p>
+        </div>
+        <div class="report-card">
+          <h3>Last 30 days</h3>
+          <p id="r30">0 kcal</p>
+        </div>
+        <div class="report-card">
+          <h3>Last 60 days</h3>
+          <p id="r60">0 kcal</p>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-primary" id="show7">Show 7 days</button>
+        <button class="btn btn-primary" id="show30">Show 30 days</button>
+        <button class="btn btn-primary" id="show60">Show 60 days</button>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="panel" id="reportDetails">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="small muted">Report view:</div>
+            <strong id="reportTitle">Last 7 days</strong>
+          </div>
+          <div class="small muted">Tap a day to inspect</div>
+        </div>
+
+        <div style="height:8px"></div>
+        <canvas id="reportChart" width="390" height="120" style="width:100%;border-radius:8px;background:transparent;"></canvas>
+
+        <div style="height:8px"></div>
+        <div id="reportSummary" class="small muted">Totals: —</div>
+      </div>
+    </section>
+
+    <!-- Selected day details -->
+    <section class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h3 style="margin:0">Day view</h3>
+          <div class="small muted" id="dayLabel">Select a date or choose Today</div>
+        </div>
+        <div>
+          <button id="exportBtn" class="btn btn-ghost">Export</button>
+        </div>
+      </div>
+
+      <div style="height:8px"></div>
+      <div id="dayEntries" class="entries"></div>
+      <div style="height:8px"></div>
+      <div class="nutrients" id="dayTotals"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="small muted">Eat with Kaka — mobile food log</div>
+    <div>
+      <button id="clearAll" class="btn danger">Clear all</button>
+    </div>
+  </footer>
+</div>
+
+<script>
+/*
+  Eat with Kaka — client-side food logger
+  - Stores entries in localStorage under 'kaka_food_log'
+  - Each entry:
+      {id, name, amount, unit, timestamp, dateStr, nutrition: {calories, protein, fat, carbs, cholesterol}}
+  - Includes a tiny local nutrition DB for quick lookups; user can edit later if needed.
+*/
+
+const STORAGE_KEY = 'kaka_food_log_v1';
+const app = document.querySelector('.app');
+
+// sample nutrition database (per 100g unless noted). For some liquids we note per fl oz.
+const NDB = {
+  "apple": { per: "100g", calories:52, protein:0.26, fat:0.17, carbs:13.8, cholesterol:0 },
+  "banana": { per: "100g", calories:89, protein:1.09, fat:0.33, carbs:22.8, cholesterol:0 },
+  "tuna": { per: "100g", calories:132, protein:28, fat:1, carbs:0, cholesterol:47 },
+  "tuna canned": { per: "100g", calories:116, protein:26, fat:1, carbs:0, cholesterol:40 },
+  "egg": { per: "1serv", calories:78, protein:6.3, fat:5.3, carbs:0.6, cholesterol:186 },
+  "egg soft": { per: "1serv", calories:78, protein:6.3, fat:5.3, carbs:0.6, cholesterol:186 },
+  "milk": { per: "fl oz", calories:18, protein:1, fat:1, carbs:1.5, cholesterol:5 }, // per fl oz ~ (whole)
+  "coffee black": { per: "100g", calories:1, protein:0.1, fat:0, carbs:0, cholesterol:0 },
+  "turkey": { per: "100g", calories:135, protein:29, fat:1, carbs:0, cholesterol:85 },
+  "tuna sandwich": { per: "1serv", calories:330, protein:18, fat:12, carbs:34, cholesterol:45 }, // example
+  "yogurt plain": { per: "100g", calories:59, protein:10, fat:0.4, carbs:3.6, cholesterol:5 }
+};
+
+// helpers
+function gid(id){ return document.getElementById(id); }
+function saveAll(arr){ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
+function loadAll(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e){ return []; } }
+function nowISO(){ return new Date().toISOString(); }
+function dateOnlyStr(d){ // YYYY-MM-DD
+  const dt = new Date(d);
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth()+1).padStart(2,'0');
+  const dd = String(dt.getDate()).padStart(2,'0');
+  return `${y}-${m}-${dd}`;
+}
+function uid(){ return Math.random().toString(36).slice(2,9); }
+
+// unit conversions
+function convertAmountToGrams(amount, unit, foodKey){
+  // If food DB is per fl oz or per serving, handle differently.
+  const key = foodKey && NDB[foodKey] ? NDB[foodKey].per : null;
+  if(unit === 'g') return amount;
+  if(unit === 'oz') return amount * 28.3495;
+  if(unit === 'floz') {
+    // approximate: 1 fl oz = 29.5735 ml ~ treat 1fl oz as 1 "fl oz unit" for liquids
+    // we'll return null to indicate using per-fl oz data if DB matches
+    return null;
+  }
+  if(unit === 'serving') return null;
+  return null;
+}
+
+function estimateNutrition(name, amount, unit){
+  const lower = name.trim().toLowerCase();
+  // try exact match, then partial match
+  let key = null;
+  if(NDB[lower]) key = lower;
+  else {
+    // find best partial
+    for(const k of Object.keys(NDB)){
+      if(lower.includes(k)) { key = k; break; }
+    }
+  }
+
+  if(!key){
+    // no DB match — return zeros and let user edit (for demo)
+    return {
+      source: null,
+      calories:0, protein:0, fat:0, carbs:0, cholesterol:0
+    };
+  }
+
+  const item = NDB[key];
+  let multiplier = 1;
+
+  if(item.per === '100g'){
+    const grams = convertAmountToGrams(amount, unit, key);
+    if(grams == null) {
+      // user gave serving or fl oz but DB is per 100g — assume serving means 100g
+      if(unit === 'serving') multiplier = amount * 1;
+      else multiplier = amount * 1; // fallback
+    } else {
+      multiplier = grams / 100;
+    }
+  } else if(item.per === '1serv'){
+    multiplier = amount; // per serving
+  } else if(item.per === 'fl oz'){
+    if(unit === 'floz') multiplier = amount;
+    else if(unit === 'oz') multiplier = amount; // fall back
+    else if(unit === 'g') {
+      // convert grams to fl oz roughly: 1 fl oz ~ 29.57 ml ~ 29.57 g for water-like
+      multiplier = amount / 29.5735;
+    } else multiplier = amount;
+  } else {
+    multiplier = amount;
+  }
+
+  const calc = (v)=> Math.round((v * multiplier + Number.EPSILON) * 100) / 100;
+
+  return {
+    source: key,
+    calories: calc(item.calories || 0),
+    protein: calc(item.protein || 0),
+    fat: calc(item.fat || 0),
+    carbs: calc(item.carbs || 0),
+    cholesterol: calc(item.cholesterol || 0)
+  };
+}
+
+/* UI logic */
+const entriesList = gid('entriesList');
+const dayEntries = gid('dayEntries');
+const dayTotals = gid('dayTotals');
+const jumpDate = gid('jumpDate');
+
+const foodsQuick = ['Tuna', 'Egg', 'Apple', 'Banana', 'Milk', 'Yogurt Plain', 'Turkey', 'Coffee Black', 'Tuna Sandwich'];
+
+function friendlyBadge(name){
+  const initials = name.split(' ').map(s=>s[0]||'').slice(0,2).join('').toUpperCase();
+  // color by char code
+  const code = (initials.charCodeAt(0)||70) + (initials.charCodeAt(1)||30);
+  const hue = code % 360;
+  const bg = `linear-gradient(135deg,hsl(${hue} 80% 55%), hsl(${(hue+40)%360} 70% 45%))`;
+  return { initials, bg };
+}
+
+function renderEntries(){
+  const arr = loadAll().sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+  entriesList.innerHTML = '';
+  if(arr.length === 0){
+    entriesList.innerHTML = '<div class="small muted">No entries yet — add a food above.</div>';
+    return;
+  }
+  for(const e of arr){
+    const b = friendlyBadge(e.name || 'Food');
+    const el = document.createElement('div');
+    el.className = 'entry';
+    el.innerHTML = `
+      <div class="left">
+        <div class="badge" style="background:${b.bg};">${b.initials}</div>
+        <div>
+          <strong>${escapeHtml(e.name)}</strong>
+          <small>${e.amount} ${e.unit} — ${new Date(e.timestamp).toLocaleString()}</small>
+          <div class="small muted">cal ${e.nutrition.calories} • P ${e.nutrition.protein}g • F ${e.nutrition.fat}g</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div class="small muted">${e.dateStr}</div>
+        <div style="height:8px"></div>
+        <div style="display:flex; gap:6px; justify-content:flex-end;">
+          <button class="btn btn-ghost smallBtn" data-id="${e.id}" data-action="view">View</button>
+          <button class="btn btn-ghost smallBtn" data-id="${e.id}" data-action="delete">Del</button>
+        </div>
+      </div>
+    `;
+    entriesList.appendChild(el);
+  }
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+}
+
+function renderDay(dateStr){
+  const arr = loadAll().filter(e=> e.dateStr === dateStr).sort((a,b)=> new Date(b.timestamp)-new Date(a.timestamp));
+  dayEntries.innerHTML = '';
+  if(arr.length === 0){
+    dayEntries.innerHTML = '<div class="small muted">No foods for this day.</div>';
+    dayTotals.innerHTML = '';
+    return;
+  }
+  for(const e of arr){
+    const el = document.createElement('div');
+    el.className = 'entry';
+    el.innerHTML = `
+      <div class="left">
+        <div style="width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center;font-weight:800;">
+          ${escapeHtml(e.amount)}
+        </div>
+        <div>
+          <strong>${escapeHtml(e.name)}</strong>
+          <small>${e.unit} — ${new Date(e.timestamp).toLocaleTimeString()}</small>
+          <div class="small muted">cal ${e.nutrition.calories} • P ${e.nutrition.protein}g</div>
+        </div>
+      </div>
+      <div>
+        <button class="btn btn-ghost smallBtn" data-id="${e.id}" data-action="edit">Edit</button>
+        <button class="btn btn-ghost smallBtn" data-id="${e.id}" data-action="delete">Del</button>
+      </div>
+    `;
+    dayEntries.appendChild(el);
+  }
+
+  // totals
+  const totals = arr.reduce((t,x)=>{
+    t.cal += Number(x.nutrition.calories||0);
+    t.pro += Number(x.nutrition.protein||0);
+    t.fat += Number(x.nutrition.fat||0);
+    t.carbs += Number(x.nutrition.carbs||0);
+    t.ch += Number(x.nutrition.cholesterol||0);
+    return t;
+  }, {cal:0,pro:0,fat:0,carbs:0,ch:0});
+  dayTotals.innerHTML = `
+    <div class="nut">Calories: <strong style="color:white">${Math.round(totals.cal)}</strong></div>
+    <div class="nut">Protein: <strong>${Math.round(totals.pro*10)/10} g</strong></div>
+    <div class="nut">Fat: <strong>${Math.round(totals.fat*10)/10} g</strong></div>
+    <div class="nut">Carbs: <strong>${Math.round(totals.carbs*10)/10} g</strong></div>
+  `;
+}
+
+function addQuickChips(){
+  const area = gid('quickList');
+  area.innerHTML = '';
+  foodsQuick.forEach(f=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = f;
+    chip.onclick = ()=> {
+      gid('foodName').value = f;
+      gid('amount').value = 1;
+      gid('unit').value = 'serving';
+      gid('foodName').focus();
+    };
+    area.appendChild(chip);
+  });
+}
+
+/* add entry flow */
+function addEntry(){
+  const name = gid('foodName').value.trim();
+  const amount = Number(gid('amount').value);
+  const unit = gid('unit').value;
+
+  if(!name || !amount || amount <=0){
+    alert('Please enter a food name and a positive amount.');
+    return;
+  }
+
+  const nutrition = estimateNutrition(name, amount, unit);
+  const timestamp = nowISO();
+  const dateStr = dateOnlyStr(timestamp);
+
+  const entry = {
+    id: uid(),
+    name,
+    amount,
+    unit,
+    timestamp,
+    dateStr,
+    nutrition
+  };
+
+  const arr = loadAll();
+  arr.push(entry);
+  saveAll(arr);
+  renderEntries();
+  // auto-show day if same as selected
+  const selected = jumpDate.value || dateOnlyStr(new Date());
+  renderDay(selected);
+
+  // show quick popup with nutrition break down
+  showNutritionToast(entry);
+  // clear inputs
+  gid('foodName').value = '';
+  gid('amount').value = '';
+  gid('unit').value = 'serving';
+}
+
+/* show small overlay detail after adding */
+function showNutritionToast(entry){
+  const toast = document.createElement('div');
+  toast.className = 'card';
+  toast.style.position='fixed';
+  toast.style.left='12px';
+  toast.style.right='12px';
+  toast.style.bottom='18px';
+  toast.style.zIndex=9999;
+  toast.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <strong>${escapeHtml(entry.name)}</strong>
+        <div class="small muted">Added ${entry.amount} ${entry.unit} • ${new Date(entry.timestamp).toLocaleTimeString()}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="small muted">cal <strong>${entry.nutrition.calories}</strong></div>
+        <div class="small muted">P ${entry.nutrition.protein}g</div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(toast);
+  setTimeout(()=> toast.style.opacity=0.95,50);
+  setTimeout(()=> {
+    try{ toast.remove(); }catch(e){}
+  }, 3200);
+}
+
+/* delete and edit handlers */
+document.addEventListener('click', function(e){
+  const t = e.target;
+  const action = t.dataset.action;
+  const id = t.dataset.id;
+  if(action === 'delete'){
+    if(!confirm('Delete this entry?')) return;
+    let arr = loadAll();
+    arr = arr.filter(x=> x.id !== id);
+    saveAll(arr);
+    renderEntries();
+    const sel = jumpDate.value || dateOnlyStr(new Date());
+    renderDay(sel);
+  } else if(action === 'view' || action === 'edit'){
+    const arr = loadAll();
+    const entry = arr.find(x=> x.id === id);
+    if(!entry) return;
+    openEditDialog(entry);
+  }
+});
+
+function openEditDialog(entry){
+  // simple prompt-based editor for quick edits
+  const newName = prompt('Food name', entry.name);
+  if(newName === null) return;
+  const newAmount = prompt('Amount', entry.amount);
+  if(newAmount === null) return;
+  const newUnit = prompt('Unit (serving/g/oz/floz)', entry.unit) || entry.unit;
+
+  entry.name = newName.trim() || entry.name;
+  entry.amount = Number(newAmount) || entry.amount;
+  entry.unit = newUnit;
+
+  // re-estimate nutrition
+  entry.nutrition = estimateNutrition(entry.name, entry.amount, entry.unit);
+  // replace in storage
+  const arr = loadAll().map(x=> x.id === entry.id ? entry : x);
+  saveAll(arr);
+  renderEntries();
+  const sel = jumpDate.value || dateOnlyStr(new Date());
+  renderDay(sel);
+}
+
+/* reports */
+function computeTotalsWindow(days){
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - (days-1));
+  const arr = loadAll().filter(e=> new Date(e.dateStr) >= dateOnlyStrToDate(dateOnlyStr(cutoff)));
+  const totals = arr.reduce((t,x)=>{
+    t.cal += Number(x.nutrition.calories||0);
+    t.pro += Number(x.nutrition.protein||0);
+    t.fat += Number(x.nutrition.fat||0);
+    t.carbs += Number(x.nutrition.carbs||0);
+    return t;
+  }, {cal:0,pro:0,fat:0,carbs:0});
+  return { totals, arr };
+}
+
+function dateOnlyStrToDate(s){
+  // returns Date with midnight local time
+  const parts = s.split('-').map(Number);
+  return new Date(parts[0], parts[1]-1, parts[2]);
+}
+
+function updateReportSummaries(){
+  const r7 = computeTotalsWindow(7).totals;
+  const r30 = computeTotalsWindow(30).totals;
+  const r60 = computeTotalsWindow(60).totals;
+  gid('r7').textContent = Math.round(r7.cal) + ' kcal';
+  gid('r30').textContent = Math.round(r30.cal) + ' kcal';
+  gid('r60').textContent = Math.round(r60.cal) + ' kcal';
+}
+
+// simple chart drawing of calories per day
+function drawReport(days){
+  const ctx = gid('reportChart').getContext('2d');
+  const canvas = gid('reportChart');
+  const w = canvas.width = canvas.clientWidth * devicePixelRatio;
+  const h = canvas.height = canvas.clientHeight * devicePixelRatio;
+  ctx.clearRect(0,0,w,h);
+  // build labels and data
+  const labels = [];
+  const data = [];
+  for(let i=days-1;i>=0;i--){
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const s = dateOnlyStr(d);
+    labels.push(s);
+    const dayTotal = loadAll().filter(e=> e.dateStr===s).reduce((t,x)=> t + Number(x.nutrition.calories||0),0);
+    data.push(dayTotal);
+  }
+  // find max
+  const max = Math.max(...data, 100);
+  const pad = 20*devicePixelRatio;
+  const leftPad = 36*devicePixelRatio;
+  const bottomPad = 30*devicePixelRatio;
+
+  // draw axes lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1*devicePixelRatio;
+  for(let i=0;i<4;i++){
+    const y = pad + (h - pad - bottomPad) * i/3;
+    ctx.beginPath(); ctx.moveTo(leftPad, y); ctx.lineTo(w-8*devicePixelRatio, y); ctx.stroke();
+  }
+
+  // draw bars
+  const barW = ((w-leftPad-16*devicePixelRatio) / data.length) * 0.7;
+  data.forEach((val,i)=>{
+    const x = leftPad + i * ((w-leftPad-16*devicePixelRatio) / data.length) + ((w-leftPad-16*devicePixelRatio) / data.length - barW)/2;
+    const hVal = (val / max) * (h - pad - bottomPad);
+    const y = (h - bottomPad) - hVal;
+    // gradient bar
+    const grad = ctx.createLinearGradient(x,y,x,y+hVal);
+    grad.addColorStop(0, 'rgba(62,230,182,0.95)');
+    grad.addColorStop(1, 'rgba(124,92,255,0.95)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, y, barW, hVal);
+    // label
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.font = (10*devicePixelRatio) + 'px Inter, Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(Math.round(val), x + barW/2, y - 6*devicePixelRatio);
+    // x label short
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.font = (9*devicePixelRatio) + 'px Inter, Arial';
+    const short = labels[i].slice(5); // MM-DD
+    ctx.fillText(short, x + barW/2, h - 8*devicePixelRatio);
+  });
+
+  // summary
+  const sum = data.reduce((s,x)=>s+x,0);
+  gid('reportSummary').textContent = `Total calories: ${Math.round(sum)} kcal over ${days} days`;
+}
+
+/* events */
+gid('addBtn').addEventListener('click', addEntry);
+gid('clearBtn').addEventListener('click', ()=> {
+  gid('foodName').value=''; gid('amount').value=''; gid('unit').value='serving';
+});
+gid('todayBtn').addEventListener('click', ()=> {
+  const today = dateOnlyStr(new Date());
+  jumpDate.value = today;
+  gid('dayLabel').textContent = 'Viewing ' + today;
+  renderDay(today);
+});
+gid('jumpDate').addEventListener('change', ()=> {
+  const val = jumpDate.value;
+  if(!val) return;
+  gid('dayLabel').textContent = 'Viewing ' + val;
+  renderDay(val);
+});
+
+gid('show7').addEventListener('click', ()=> {
+  gid('reportTitle').textContent = 'Last 7 days';
+  drawReport(7);
+});
+gid('show30').addEventListener('click', ()=> {
+  gid('reportTitle').textContent = 'Last 30 days';
+  drawReport(30);
+});
+gid('show60').addEventListener('click', ()=> {
+  gid('reportTitle').textContent = 'Last 60 days';
+  drawReport(60);
+});
+
+gid('exportBtn').addEventListener('click', ()=> {
+  const arr = loadAll();
+  const blob = new Blob([JSON.stringify(arr, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  // mobile-friendly: open data URL in new tab
+  window.open(url, '_blank');
+});
+
+gid('clearAll').addEventListener('click', ()=>{
+  if(!confirm('Clear ALL saved entries? This cannot be undone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  renderEntries();
+  renderDay(dateOnlyStr(new Date()));
+  updateReportSummaries();
+  drawReport(7);
+});
+
+/* init */
+function init(){
+  addQuickChips();
+  // set jumpDate to today by default
+  jumpDate.value = dateOnlyStr(new Date());
+  gid('dayLabel').textContent = 'Viewing ' + jumpDate.value;
+  renderEntries();
+  renderDay(jumpDate.value);
+  updateReportSummaries();
+  drawReport(7);
+  // wire smaller buttons (event delegation above uses data-action)
+  // handle resize redraw chart for crispness
+  window.addEventListener('resize', ()=> {
+    const title = gid('reportTitle').textContent;
+    if(title.includes('7')) drawReport(7);
+    else if(title.includes('30')) drawReport(30);
+    else if(title.includes('60')) drawReport(60);
+  });
+}
+
+// small accessibility tweak: pressing Enter in amount triggers add
+gid('amount').addEventListener('keydown', (e)=> {
+  if(e.key === 'Enter') { addEntry(); e.preventDefault(); }
+});
+
+init();
+
+/* End of script */
+</script>
+</body>
+</html>
